@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>MAPA DE PROYECTOS DEL DEPARTAMENTO DE INGENIERIA DEL FEDA 2022-2024</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/REPUBLICADOMINICANA_1.js"></script>
+        <script src="data/PROVINCIAPROYECTOS_2.js"></script>
+        <script src="data/PROYECTOSENEJECUCION20222024_3.js"></script>
+        <script src="data/PROYECTOSINAGURADOS20222024_4.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[17.101269650854046,-72.86368417892437],[20.344529144447232,-66.14296147328211]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topleft'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>MAPA DE PROYECTOS DEL DEPARTAMENTO DE INGENIERIA DEL FEDA 2022-2024</h2>';
+        };
+        title.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleSatellite_0');
+        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
+        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleSatellite_0;
+        map.addLayer(layer_GoogleSatellite_0);
+        function pop_REPUBLICADOMINICANA_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_REPUBLICADOMINICANA_1_0() {
+            return {
+                pane: 'pane_REPUBLICADOMINICANA_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(205,229,241,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_REPUBLICADOMINICANA_1');
+        map.getPane('pane_REPUBLICADOMINICANA_1').style.zIndex = 401;
+        map.getPane('pane_REPUBLICADOMINICANA_1').style['mix-blend-mode'] = 'normal';
+        var layer_REPUBLICADOMINICANA_1 = new L.geoJson(json_REPUBLICADOMINICANA_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_REPUBLICADOMINICANA_1',
+            layerName: 'layer_REPUBLICADOMINICANA_1',
+            pane: 'pane_REPUBLICADOMINICANA_1',
+            onEachFeature: pop_REPUBLICADOMINICANA_1,
+            style: style_REPUBLICADOMINICANA_1_0,
+        });
+        bounds_group.addLayer(layer_REPUBLICADOMINICANA_1);
+        map.addLayer(layer_REPUBLICADOMINICANA_1);
+        function pop_PROVINCIAPROYECTOS_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PROVINCIAPROYECTOS_2_0() {
+            return {
+                pane: 'pane_PROVINCIAPROYECTOS_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(32,128,192,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_PROVINCIAPROYECTOS_2');
+        map.getPane('pane_PROVINCIAPROYECTOS_2').style.zIndex = 402;
+        map.getPane('pane_PROVINCIAPROYECTOS_2').style['mix-blend-mode'] = 'normal';
+        var layer_PROVINCIAPROYECTOS_2 = new L.geoJson(json_PROVINCIAPROYECTOS_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_PROVINCIAPROYECTOS_2',
+            layerName: 'layer_PROVINCIAPROYECTOS_2',
+            pane: 'pane_PROVINCIAPROYECTOS_2',
+            onEachFeature: pop_PROVINCIAPROYECTOS_2,
+            style: style_PROVINCIAPROYECTOS_2_0,
+        });
+        bounds_group.addLayer(layer_PROVINCIAPROYECTOS_2);
+        map.addLayer(layer_PROVINCIAPROYECTOS_2);
+        function pop_PROYECTOSENEJECUCION20222024_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">PROYECTO</th>\
+                        <td>' + (feature.properties['PROYECTO'] !== null ? autolinker.link(String(feature.properties['PROYECTO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">SIGLAS</th>\
+                        <td>' + (feature.properties['SIGLAS'] !== null ? autolinker.link(String(feature.properties['SIGLAS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LUGAR</th>\
+                        <td>' + (feature.properties['LUGAR'] !== null ? autolinker.link(String(feature.properties['LUGAR']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">OBJETO</th>\
+                        <td>' + (feature.properties['OBJETO'] !== null ? autolinker.link(String(feature.properties['OBJETO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">INVERSION BASE</th>\
+                        <td>' + (feature.properties['INVERSION BASE'] !== null ? autolinker.link(String(feature.properties['INVERSION BASE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">MONTO CUBICADO</th>\
+                        <td>' + (feature.properties['MONTO CUBICADO'] !== null ? autolinker.link(String(feature.properties['MONTO CUBICADO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">FECHA DE CUBICACION RECIENTE:</th>\
+                        <td>' + (feature.properties['FECHA DE CUBICACION RECIENTE:'] !== null ? autolinker.link(String(feature.properties['FECHA DE CUBICACION RECIENTE:']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">% DE EJECUCION</th>\
+                        <td>' + (feature.properties['% DE EJECUCION'] !== null ? autolinker.link(String(feature.properties['% DE EJECUCION']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PROYECTOSENEJECUCION20222024_3_0() {
+            return {
+                pane: 'pane_PROYECTOSENEJECUCION20222024_3',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/PROYECTOSENEJECUCION20222024_3.svg',
+            iconSize: [34.199999999999996, 34.199999999999996]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_PROYECTOSENEJECUCION20222024_3');
+        map.getPane('pane_PROYECTOSENEJECUCION20222024_3').style.zIndex = 403;
+        map.getPane('pane_PROYECTOSENEJECUCION20222024_3').style['mix-blend-mode'] = 'normal';
+        var layer_PROYECTOSENEJECUCION20222024_3 = new L.geoJson(json_PROYECTOSENEJECUCION20222024_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PROYECTOSENEJECUCION20222024_3',
+            layerName: 'layer_PROYECTOSENEJECUCION20222024_3',
+            pane: 'pane_PROYECTOSENEJECUCION20222024_3',
+            onEachFeature: pop_PROYECTOSENEJECUCION20222024_3,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_PROYECTOSENEJECUCION20222024_3_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_PROYECTOSENEJECUCION20222024_3);
+        map.addLayer(layer_PROYECTOSENEJECUCION20222024_3);
+        function pop_PROYECTOSINAGURADOS20222024_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">PROYECTO</th>\
+                        <td>' + (feature.properties['PROYECTO'] !== null ? autolinker.link(String(feature.properties['PROYECTO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">SIGLAS</th>\
+                        <td>' + (feature.properties['SIGLAS'] !== null ? autolinker.link(String(feature.properties['SIGLAS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">LUGAR</th>\
+                        <td>' + (feature.properties['LUGAR'] !== null ? autolinker.link(String(feature.properties['LUGAR']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">OBJETO</th>\
+                        <td>' + (feature.properties['OBJETO'] !== null ? autolinker.link(String(feature.properties['OBJETO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">INVERSION BASE</th>\
+                        <td>' + (feature.properties['INVERSION BASE'] !== null ? autolinker.link(String(feature.properties['INVERSION BASE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">MONTO CUBICADO</th>\
+                        <td>' + (feature.properties['MONTO CUBICADO'] !== null ? autolinker.link(String(feature.properties['MONTO CUBICADO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PROYECTOSINAGURADOS20222024_4_0() {
+            return {
+                pane: 'pane_PROYECTOSINAGURADOS20222024_4',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/PROYECTOSINAGURADOS20222024_4.svg',
+            iconSize: [38.0, 38.0]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_PROYECTOSINAGURADOS20222024_4');
+        map.getPane('pane_PROYECTOSINAGURADOS20222024_4').style.zIndex = 404;
+        map.getPane('pane_PROYECTOSINAGURADOS20222024_4').style['mix-blend-mode'] = 'normal';
+        var layer_PROYECTOSINAGURADOS20222024_4 = new L.geoJson(json_PROYECTOSINAGURADOS20222024_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PROYECTOSINAGURADOS20222024_4',
+            layerName: 'layer_PROYECTOSINAGURADOS20222024_4',
+            pane: 'pane_PROYECTOSINAGURADOS20222024_4',
+            onEachFeature: pop_PROYECTOSINAGURADOS20222024_4,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_PROYECTOSINAGURADOS20222024_4_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_PROYECTOSINAGURADOS20222024_4);
+        map.addLayer(layer_PROYECTOSINAGURADOS20222024_4);
+        var overlaysTree = [
+            {label: '<img src="legend/PROYECTOSINAGURADOS20222024_4.png" /> PROYECTOS INAGURADOS 2022-2024', layer: layer_PROYECTOSINAGURADOS20222024_4},
+            {label: '<img src="legend/PROYECTOSENEJECUCION20222024_3.png" /> PROYECTOS EN EJECUCION 2022-2024', layer: layer_PROYECTOSENEJECUCION20222024_3},
+            {label: '<img src="legend/PROVINCIAPROYECTOS_2.png" /> PROVINCIA PROYECTOS', layer: layer_PROVINCIAPROYECTOS_2},
+            {label: '<img src="legend/REPUBLICADOMINICANA_1.png" /> REPUBLICA DOMINICANA', layer: layer_REPUBLICADOMINICANA_1},
+            {label: "Google Satellite", layer: layer_GoogleSatellite_0, radioGroup: 'bm' },]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"PROYECTO": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_PROYECTO = document.createElement('div');
+            div_PROYECTO.id = "div_PROYECTO";
+            div_PROYECTO.className= "filterselect";
+            document.getElementById("menu").appendChild(div_PROYECTO);
+            sel_PROYECTO = document.createElement('select');
+            sel_PROYECTO.multiple = true;
+            sel_PROYECTO.size = 10;
+            sel_PROYECTO.id = "sel_PROYECTO";
+            var PROYECTO_options_str = "<option value='' unselected></option>";
+            sel_PROYECTO.onchange = function(){filterFunc()};
+            PROYECTO_options_str  += '<option value="ASOCIACION AGROPECUARIA ANTONIO DE LA MAZA">ASOCIACION AGROPECUARIA ANTONIO DE LA MAZA</option>';
+            PROYECTO_options_str  += '<option value="ASOCIACION DE AYUDA MUTUA LA HUMANITARIA">ASOCIACION DE AYUDA MUTUA LA HUMANITARIA</option>';
+            PROYECTO_options_str  += '<option value="ASOCIACION DE GANADEROS DE SABANA DE LA MAR">ASOCIACION DE GANADEROS DE SABANA DE LA MAR</option>';
+            PROYECTO_options_str  += '<option value="ASOCIACION DE PRODUCTORES DE CACAO Y CULTIVOS AFINES DE GUANANICO">ASOCIACION DE PRODUCTORES DE CACAO Y CULTIVOS AFINES DE GUANANICO</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA AGROPECUARIA Y SERVICIOS MULTIPLES DE PARAISO">COOPERATIVA AGROPECUARIA Y SERVICIOS MULTIPLES DE PARAISO</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA AGROPECUARIA Y SERVICIOS MULTIPLES JUNTOS PODEMOS">COOPERATIVA AGROPECUARIA Y SERVICIOS MULTIPLES JUNTOS PODEMOS</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA AGROPECUARIA Y SERVICIOS MULTIPLES LA OVIEDENSE">COOPERATIVA AGROPECUARIA Y SERVICIOS MULTIPLES LA OVIEDENSE</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA APICOLA Y SERVICIOS MULTIPLES SALVADOR FERRER, INC.">COOPERATIVA APICOLA Y SERVICIOS MULTIPLES SALVADOR FERRER, INC.</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA DE GANADEROS DE DUVERGE, INC.">COOPERATIVA DE GANADEROS DE DUVERGE, INC.</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA DE LA JUNTA AGROPECUARIA LA ALTAGRACIA, INC.">COOPERATIVA DE LA JUNTA AGROPECUARIA LA ALTAGRACIA, INC.</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA DE PRODUCCION, TRABAJO Y SERVICIOS MULTIPLES DE PRODUCTORES DE SAL MARINA , EL MORRO">COOPERATIVA DE PRODUCCION, TRABAJO Y SERVICIOS MULTIPLES DE PRODUCTORES DE SAL MARINA , EL MORRO</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA DE SERVICIOS MULTIPLES MUJERES PRODUCTORAS DE TILAPIAS">COOPERATIVA DE SERVICIOS MULTIPLES MUJERES PRODUCTORAS DE TILAPIAS</option>';
+            PROYECTO_options_str  += '<option value="COOPERATIVA DE SERVICIOS MULTIPLES SECTORES UNIDOS">COOPERATIVA DE SERVICIOS MULTIPLES SECTORES UNIDOS</option>';
+            PROYECTO_options_str  += '<option value="FEDERACION DE GANADEROS DE LA LINEA NORTE">FEDERACION DE GANADEROS DE LA LINEA NORTE</option>';
+            PROYECTO_options_str  += '<option value="FEDERACION DE GANADEROS DEL CIBAO CENTRAL Y NORDESTE ">FEDERACION DE GANADEROS DEL CIBAO CENTRAL Y NORDESTE </option>';
+            PROYECTO_options_str  += '<option value="PARROQUIA SAN JOSE, EL VALLE">PARROQUIA SAN JOSE, EL VALLE</option>';
+            PROYECTO_options_str  += '<option value="PATRONATO DE APOYO A LA EDUCACION SUPERIOR Y TECNICA EN LA PROVINCIA DE HATO MAYOR">PATRONATO DE APOYO A LA EDUCACION SUPERIOR Y TECNICA EN LA PROVINCIA DE HATO MAYOR</option>';
+            PROYECTO_options_str  += '<option value="PUESTA EN VALOR DEL HISTORICO TRAPICHE DE EL COCO">PUESTA EN VALOR DEL HISTORICO TRAPICHE DE EL COCO</option>';
+            PROYECTO_options_str  += '<option value="PUESTA EN VALOR Y RECONSTRUCCION DEL CENTRO CULTURAL Y JUVENIL EL CASON DE SABANA DE LA MAR">PUESTA EN VALOR Y RECONSTRUCCION DEL CENTRO CULTURAL Y JUVENIL EL CASON DE SABANA DE LA MAR</option>';
+            PROYECTO_options_str  += '<option value="REF.: FEDA-CCC-CP-2023-0025">REF.: FEDA-CCC-CP-2023-0025</option>';
+            sel_PROYECTO.innerHTML = PROYECTO_options_str;
+            div_PROYECTO.appendChild(sel_PROYECTO);
+            var lab_PROYECTO = document.createElement('div');
+            lab_PROYECTO.innerHTML = 'PROYECTO';
+            lab_PROYECTO.className = 'filterlabel';
+            div_PROYECTO.appendChild(lab_PROYECTO);
+            var reset_PROYECTO = document.createElement('div');
+            reset_PROYECTO.innerHTML = 'clear filter';
+            reset_PROYECTO.className = 'filterlabel';
+            reset_PROYECTO.onclick = function() {
+                var options = document.getElementById("sel_PROYECTO").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_PROYECTO.appendChild(reset_PROYECTO);
+        resetLabels([layer_REPUBLICADOMINICANA_1,layer_PROVINCIAPROYECTOS_2]);
+        map.on("zoomend", function(){
+            resetLabels([layer_REPUBLICADOMINICANA_1,layer_PROVINCIAPROYECTOS_2]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_REPUBLICADOMINICANA_1,layer_PROVINCIAPROYECTOS_2]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_REPUBLICADOMINICANA_1,layer_PROVINCIAPROYECTOS_2]);
+        });
+        </script>
+    </body>
+</html>
